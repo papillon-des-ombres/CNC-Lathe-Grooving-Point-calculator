@@ -1,3 +1,3 @@
-# CNC Lathe Grooving Point calculator
+# CNC Lathe Grooving Point calculator 2.1
 
-Calculates the points, offsets, and Fanuc type NC code to create a groove on a CNC lathe by using parameters you can set and edit.
+Calculates the Z Offset of a tool to create a groove on a CNC lathe according to the tool radius and slope angle.
