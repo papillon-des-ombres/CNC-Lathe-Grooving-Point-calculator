@@ -22,18 +22,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 -->
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="zh" dir="ltr">
   <head>
     <meta charset="utf-8">
     <title></title>
     <style>
       body{background-color:#EEEEEE;}
       div{
-        font-family:courier;
+        font-family:sans;
           text-align: center;
       }
       button{
-        font-family:courier;
+        font-family:sans;
         background-color: #555555;
         border: none;
         color: white;
@@ -48,12 +48,12 @@ SOFTWARE.
   <body>
       <a href="https://adminlog.github.io/CNC-Lathe-Grooving-Point-calculator/GroovingCalculator%20v3.5.html" style="text-align: right; margin-right: 30px; margin-top: 50px; font-family: sans">English</a>
       <div>
-        <h1 style="margin-top:80px">FANUC CNC 車床切槽Code計算器</h1>
-        <h2 style="margin-top:30px">Created by Anthony Reimche<br>V3.5</h2>
+        <h1 style="margin-top:80px">FANUC CNC 車床切槽程式計算器</h1>
+        <h2 style="margin-top:30px">Anthony Reimche 创建<br>V3.5</h2>
         <p>Generates FANUC grooving codes using G75, R and A.<br>Does NOT support 5-axis / rotary mill.<br><br>Copyright (c) 2019 Anthony Reimche</p>
     </div>
     <div style="margin-top:160px">
-      <h2>Tool</h2>
+      <h2>刀故</h2>
       <p style="color: #808080">Description of the grooving tool.</p>
       <button onclick="SetToolR()" id="NewToolR">Tool Radius = 0.2mm</button>
       <br><br>
@@ -61,7 +61,7 @@ SOFTWARE.
       <br><br>
       <button onclick="SetToolHeight()" id="NewToolHeight">Tool Length = 12mm</button>
       <br><br>
-      <h2>Groove</h2>
+      <h2>曹</h2>
       <p style="color: #808080">Description of the groove.</p>
       <button onclick="SetGrooveAngle()" id="NewGrooveAngle">Groove Taper Angle = 0°</button>
       <br><br>
@@ -90,7 +90,7 @@ SOFTWARE.
       <p id="Neww"></p>
     </div>
     <div style="margin-top:50px; margin-bottom:200px; margin-left: 30%; text-align:left">
-      <p style="margin-top:10px" id="Code"></p>
+      <p style="margin-top:10px; font-family: courier" id="Code"></p>
     </div>
     <script type="text/javascript">
       var T01 = {
