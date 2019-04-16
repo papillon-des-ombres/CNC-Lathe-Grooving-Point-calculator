@@ -49,8 +49,8 @@ SOFTWARE.
       <a href="https://adminlog.github.io/CNC-Lathe-Grooving-Point-calculator/GroovingCalculator%20v3.5.html" style="text-align: right; margin-right: 30px; margin-top: 50px; font-family: sans">English</a>
       <div>
         <h1 style="margin-top:80px">FANUC CNC 車床切槽程式計算器</h1>
-        <h2 style="margin-top:30px">郭博淵 创建<br>v3.5</h2>
-        <p>Generates FANUC grooving codes using G75, R and A.<br>不包含五軸/車銑負荷機台.<br><br>Copyright (c) 2019 Anthony Reimche</p>
+        <h2 style="margin-top:30px">程式設計: 郭博淵<br>v3.5</h2>
+        <p>Generates FANUC grooving codes using G75, R and A.<br>不支援五軸/車銑複合機台.<br><br>Copyright (c) 2019 Anthony Reimche</p>
     </div>
     <div style="margin-top:160px">
       <h2>刀具設定</h2>
@@ -71,9 +71,9 @@ SOFTWARE.
       <br><br>
       <button onclick="SetGrooveInWidth()" id="NewGrooveInWidth">槽底寬度 = 0mm</button>
       <br><br>
-      <button onclick="SetInitPos()" id="NewInitPos">槽口左定位座標 = X0 Z0 (原點)</button>
+      <button onclick="SetInitPos()" id="NewInitPos">槽口左側定位座標 = X0 Z0 (原點)</button>
       <br><br>
-      <h2>Safety</h2>
+      <h2>安全設定</h2>
       <!--<p style="color: #CC8080">Don't change these if you don't know what they mean.</p>--!>
       <button onclick="SetSettingsSafetyX()" id="NewSettingsSafetyX">安全高度 = 2mm</button>
       <br><br>
@@ -81,9 +81,9 @@ SOFTWARE.
       <br><br>
       <button onclick="SetSettingsLeaveZ()" id="NewSettingsLeaveZ">Z預留量 = 0.3mm</button>
       <br><br>
-      <button onclick="SetSettingsFeed()" id="NewSettingsFeed">靜寂輛 = 0.06mm/rev</button>
+      <button onclick="SetSettingsFeed()" id="NewSettingsFeed">進給率 = 0.06mm/rev</button>
       <br><br><br><br><br>
-      <button onclick="Calculate()" id="Submit" style="background-color: #f44336">Calculate</button>
+      <button onclick="Calculate()" id="Submit" style="background-color: #f44336">計算</button>
       <br><br><br><br>
       <p style="margin-top:30px" id="NewZ"></p>
       <p id="NewW"></p>
@@ -164,24 +164,24 @@ SOFTWARE.
 
             console.log("R = " + R + "\nT01.Width = " + T01.Width);
             if(T01.Width > InW || T01.Width > OutW){
-              document.getElementById("Code").innerHTML = "無法慘生程式!<br><br>Tool width > Groove width.";
+              document.getElementById("Code").innerHTML = "無法產生程式!<br><br>刀寬 > 槽寬";
               document.getElementById("Code").style.color = "red";
               console.error("T01.Width > Groove.Width");
             }else if(InitX + Settings.SafetyX < H){
-              document.getElementById("Code").innerHTML = "Cannot generate code!<br><br>Initial X coordinate + Safety height < Groove depth.<br>Is groove depth negative?";
+              document.getElementById("Code").innerHTML = "無法產生程式!<br><br>槽口左側定位X座標 + 安全高度 < 槽寬<br>";
               document.getElementById("Code").style.color = "red";
               console.error("InitX + Settings.SafetyX < H");
             }else if(InW > OutW){
-              document.getElementById("Code").innerHTML = "Cannot generate code!<br><br>Groove width (Interior) < Groove width (Surface).<br>Grooving tools cannot create dovetail-shaped grooves.";
+              document.getElementById("Code").innerHTML = "無法產生程式!<br><br>槽口寬度 < 槽底寬度<br>無法產生鳩尾槽";
               document.getElementById("Code").style.color = "red";
               console.error("InW > OutW");
             }else if (H > T01.Height) {
-              document.getElementById("Code").innerHTML = "Cannot generate code!<br><br>Groove Depth > Tool Safety Height.<br>Please choose a longer gooving tool.";
+              document.getElementById("Code").innerHTML = "無法產生程式!<br><br>槽深 > 刀具長度<br>請使用長度大於槽深之切槽刀";
               document.getElementById("Code").style.color = "red";
               console.error("H > Height");
             }else{
               if (H > T01.Height - 3) {
-                document.getElementById("Code").innerHTML = "Groove Depth is dangerously close to Tool Safety Height.<br>A longer gooving tool is recommended.";
+                document.getElementById("Code").innerHTML = "<strong>安全距離提醒!</strong><br>建議更換較長之切槽刀";
                 console.warn("Groove Depth is dangerously close to Tool Safety Height.\nA longer gooving tool is recommended.");
               }
               document.getElementById("Code").style.color = "black";
@@ -223,11 +223,11 @@ SOFTWARE.
                 document.getElementById("Code").innerHTML += "<br>Z"+Convert2Gcode(InitZ+OutW+2-T01.Width)+"<br>G1 X"+Convert2Gcode(InitX)+"<br>Z"+Convert2Gcode((InitZ+OutW+NewZ)-T01.Width)+" R0.5<br>X"+Convert2Gcode(InitX+(H*2))+" A"+Convert2Gcode(270-(Theta/2))+"<br>W-"+Convert2Gcode((InW - T01.Width)/2)+"<br>G0 X"+Convert2Gcode(InitX + Settings.SafetyX);
               }
             }
-            document.getElementById("NewW").innerHTML = "Groove Width (Surface): " + OutW + "mm";
-            document.getElementById("Neww").innerHTML = "Groove Width (interior): " + InW + "mm";
+            document.getElementById("NewW").innerHTML = "槽口寬度: " + OutW + "mm";
+            document.getElementById("Neww").innerHTML = "槽底寬度: " + InW + "mm";
         }
         function SetToolR(){
-          var r = parseFloat(prompt("刀具半徑 (mm, e.g. 0.2):",T01.R));
+          var r = parseFloat(prompt("刀具半徑 (mm, 例如 0.2):",T01.R));
           while(isNaN(r)){
             r = parseFloat(prompt("刀具半徑須為數字:",T01.R));
           }
@@ -237,7 +237,7 @@ SOFTWARE.
           }
         }
         function SetToolWidth(){
-          var width = parseFloat(prompt("刀具寬度 (mm, e.g. 3):",T01.Width));
+          var width = parseFloat(prompt("刀具寬度 (mm, 例如 3):",T01.Width));
           while(isNaN(width)){
             width = parseFloat(prompt("刀具寬度須為數字:",T01.Width));
           }
@@ -247,7 +247,7 @@ SOFTWARE.
           }
         }
         function SetToolHeight(){
-          var height = parseFloat(prompt("刀具可用範圍之長度 (mm, e.g. 12):",T01.Height));
+          var height = parseFloat(prompt("刀具可用範圍之長度 (mm, 例如 12):",T01.Height));
           while(isNaN(height)){
             height = parseFloat(prompt("刀具長度須為數字:",T01.Height));
           }
@@ -257,7 +257,7 @@ SOFTWARE.
           }
         }
         function SetGrooveAngle(){
-          var angle = parseFloat(prompt("切割槽之錐度 (度數, e.g. 40):",Groove.Angle));
+          var angle = parseFloat(prompt("切割槽之錐度 (度數, 例如 40):",Groove.Angle));
           while(isNaN(angle)){
             angle = parseFloat(prompt("切割槽之錐度須為數字:",T01.Angle));
           }
@@ -267,7 +267,7 @@ SOFTWARE.
           }
         }
         function SetGrooveHeight(){
-          var height = parseFloat(prompt("切割槽之深度 (mm, e.g. 8):",Groove.Height));
+          var height = parseFloat(prompt("切割槽之深度 (mm, 例如 8):",Groove.Height));
           while(isNaN(height)){
             height = parseFloat(prompt("槽深須為數字:",T01.Height));
           }
@@ -277,17 +277,17 @@ SOFTWARE.
           }
         }
         function SetGrooveOutWidth(){
-          var outerWidth = parseFloat(prompt("槽口寬度 (mm, e.g. 3).",Groove.OuterWidth));
+          var outerWidth = parseFloat(prompt("槽口寬度 (mm, 例如 3).",Groove.OuterWidth));
           while(isNaN(outerWidth)){
             outerWidth = parseFloat(prompt("槽口寬度須為數字:",Groove.OuterWidth));
           }
           if(outerWidth != null){
             Groove.OuterWidth = outerWidth;
-            document.getElementById("NewGrooveOutWidth").innerHTML = "槽口寬度 (Surface) = " + Groove.OuterWidth + "mm";
+            document.getElementById("NewGrooveOutWidth").innerHTML = "槽口寬度 = " + Groove.OuterWidth + "mm";
           }
         }
         function SetGrooveInWidth(){
-          var innerWidth = parseFloat(prompt("槽底寬度 (in mm, e.g. 3).",Groove.InnerWidth));
+          var innerWidth = parseFloat(prompt("槽底寬度 (in mm, 例如 3).",Groove.InnerWidth));
           while(isNaN(innerWidth)){
             innerWidth = parseFloat(prompt("槽底寬度須為數字:",Groove.InnerWidth));
           }
@@ -297,7 +297,7 @@ SOFTWARE.
           }
         }
         function SetSettingsSafetyX(){
-          var safetyX = parseFloat(prompt("安全X高度 (in mm, e.g. 2).",Settings.SafetyX));
+          var safetyX = parseFloat(prompt("安全X高度 (in mm, 例如 2).",Settings.SafetyX));
           while(isNaN(safetyX)){
             safetyX = parseFloat(prompt("安全高度須為數字:",Settings.SafetyX));
           }
@@ -307,43 +307,43 @@ SOFTWARE.
           }
         }
         function SetSettingsLeaveX(){
-          var leaveX = parseFloat(prompt("X預留量 (mm, e.g. 0.3).",Settings.LeaveX));
+          var leaveX = parseFloat(prompt("X預留量 (mm, 例如 0.3).",Settings.LeaveX));
           while(isNaN(leaveX)){
             leaveX = parseFloat(prompt("X預留量須為數字:",Settings.LeaveX));
           }
           if(leaveX != null){
             Settings.LeaveX = leaveX;
-            document.getElementById("NewSettingsLeaveX").innerHTML = "Leave X = " + Settings.LeaveX + "mm";
+            document.getElementById("NewSettingsLeaveX").innerHTML = "X預留量 = " + Settings.LeaveX + "mm";
           }
         }
         function SetSettingsLeaveZ(){
-          var leaveZ = parseFloat(prompt("Z預留量 (mm, e.g. 0.3).",Settings.LeaveZ));
+          var leaveZ = parseFloat(prompt("Z預留量 (mm, 例如 0.3).",Settings.LeaveZ));
           while(isNaN(leaveZ)){
             leaveZ = parseFloat(prompt("Z預留量須為數字:",Settings.LeaveZ));
           }
           if(leaveZ != null){
             Settings.LeaveZ = leaveZ;
-            document.getElementById("NewSettingsLeaveZ").innerHTML = "Leave Z = " + Settings.LeaveZ + "mm";
+            document.getElementById("NewSettingsLeaveZ").innerHTML = "Z預留量 = " + Settings.LeaveZ + "mm";
           }
         }
         function SetSettingsFeed(){
-          var feed = parseFloat(prompt("Feed Rate (in mm per revolution, e.g. 0.06).",Settings.Feed));
+          var feed = parseFloat(prompt("進給率 (mm/rev, 例如 0.06).",Settings.Feed));
           while(isNaN(feed)){
-            feed = parseFloat(prompt("刀具半徑須為數字:",Settings.Feed));
+            feed = parseFloat(prompt("進給率須為數字:",Settings.Feed));
           }
           if(feed != null){
             Settings.Feed = feed;
-            document.getElementById("NewSettingsFeed").innerHTML = "Feed Rate = " + Settings.Feed + "mm/rev";
+            document.getElementById("NewSettingsFeed").innerHTML = "進給率 = " + Settings.Feed + "mm/rev";
           }
         }
         function SetInitPos(){
-          var initX = parseFloat(prompt("槽口左定位X座標:",Groove.InitX));
+          var initX = parseFloat(prompt("槽口左側定位X座標:",Groove.InitX));
           while(isNaN(initX)){
-            initX = parseFloat(prompt("槽口左定位X座標須為數字:",Groove.InitX));
+            initX = parseFloat(prompt("槽口左側定位X座標須為數字:",Groove.InitX));
           }
-          var initZ = parseFloat(prompt("槽口左定位Z座標:",Groove.InitZ));
+          var initZ = parseFloat(prompt("槽口左側定位Z座標:",Groove.InitZ));
           while(isNaN(initZ)){
-            initZ = parseFloat(prompt("槽口左定位Z座標須為數字:",Groove.InitZ));
+            initZ = parseFloat(prompt("槽口左側定位Z座標須為數字:",Groove.InitZ));
           }
           if(initX != null){
             Groove.InitX = initX;
@@ -352,9 +352,9 @@ SOFTWARE.
             Groove.InitZ = initZ;
           }
           if(Groove.InitX == 0 && Groove.InitZ == 0){
-              document.getElementById("NewInitPos").innerHTML = "槽口左定位座標 = X" + Groove.InitX + " Z" + Groove.InitZ + " (原點)";
+              document.getElementById("NewInitPos").innerHTML = "槽口左側定位座標 = X" + Groove.InitX + " Z" + Groove.InitZ + " (原點)";
           }else{
-              document.getElementById("NewInitPos").innerHTML = "槽口左定位座標 = X" + Groove.InitX + " Z" + Groove.InitZ;
+              document.getElementById("NewInitPos").innerHTML = "槽口左側定位座標 = X" + Groove.InitX + " Z" + Groove.InitZ;
           }
         }
         function Convert2Gcode(rawNum){
