@@ -1,0 +1,376 @@
+<!--
+MIT License
+
+Copyright (c) 2019 Anthony Reimche
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+      body{background-color:#EEEEEE;}
+      div{
+        font-family:courier;
+          text-align: center;
+      }
+      button{
+        font-family:courier;
+        background-color: #555555;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+      <div>
+        <h1 style="margin-top:80px">FANUC CNC Lathe Grooving Code Calculator</h1>
+        <h2 style="margin-top:30px">Created by Anthony Reimche<br>V3.6</h2>
+        <p>Generates FANUC grooving codes using G75, R and A.<br>Does NOT support 5-axis / rotary mill.<br><br>Copyright (c) 2019 Anthony Reimche</p>
+    </div>
+    <div style="margin-top:160px">
+      <h2>Tool</h2>
+      <input id="NewToolR" type="text">
+      <button onclick="SetToolR()" id="na">Tool Radius = 0.2mm</button>
+      <br><br>
+      <input id="NewToolWidth" type="text">
+      <button onclick="SetToolWidth()" id="na">Tool Width = 3mm</button>
+      <br><br>
+      <input id="NewToolHeight" type="text">
+      <button onclick="SetToolHeight()" id="na">Tool Length = 12mm</button>
+      <br><br>
+      <h2>Groove</h2>
+      <input id="NewGrooveAngle" type="text">
+      <button onclick="SetGrooveAngle()" id="na">Groove Taper Angle = 0°</button>
+      <br><br>
+      <input id="NewGrooveHeight" type="text">
+      <button onclick="SetGrooveHeight()" id="na">Groove Depth = 8mm</button>
+      <br><br>
+      <input id="NewGrooveOutWidth" type="text">
+      <button onclick="SetGrooveOutWidth()" id="na">Groove Width (Surface) = 5mm</button>
+      <br><br>
+      <input id="NewGrooveInWidth" type="text">
+      <button onclick="SetGrooveInWidth()" id="na">Groove Width (Interior) = 0mm</button>
+      <br><br>
+      <input id="NewInitPos" type="text">
+      <button onclick="SetInitPos()" id="na">Position of groove top left corner = X0 Z0 (Origin)</button>
+      <br><br>
+      <h2>Safety</h2>
+      <input id="NewSettingsSafetyX" type="text">
+      <button onclick="SetSettingsSafetyX()" id="na">Safety X Height = 2mm</button>
+      <br><br>
+      <input id="NewSettingsLeaveX" type="text">
+      <button onclick="SetSettingsLeaveX()" id="na">Leave X = 0.3mm</button>
+      <br><br><input id="NewSettingsLeaveZ" type="text">
+      <button onclick="SetSettingsLeaveZ()" id="na">Leave Z = 0.3mm</button>
+      <br><br>
+      <input id="NewSettingsFeed" type="text">
+      <button onclick="SetSettingsFeed()" id="na">Feed Rate = 0.06mm/rev</button>
+      <br><br><br><br><br>
+      <button onclick="Calculate()" id="Submit" style="background-color: #f44336">Calculate</button>
+      <br><br><br><br>
+      <p style="margin-top:30px" id="NewZ"></p>
+      <p id="NewW"></p>
+      <p id="Neww"></p>
+    </div>
+    <div style="margin-top:50px; margin-bottom:200px; margin-left: 30%; text-align:left">
+      <p style="margin-top:10px; background: #CCCCCC" id="Code"></p>
+    </div>
+    <script type="text/javascript">
+      var T01 = {
+        R:0.2,
+        Width:3,
+        Height:12,
+      };
+      var Groove = {
+        Angle:0,
+        Height:8,
+        OuterWidth:5,
+        InnerWidth:0,
+        InitX:0,
+        InitZ:0,
+      };
+      var Settings = {
+          SafetyX:2,
+          Feed:0.06,
+          LeaveX:0.3,
+          LeaveZ:0.3,
+      }
+        function Calculate(){
+            var R = T01.R;
+            var Theta = Groove.Angle;
+            var H = -Groove.Height;
+            var OutW = Groove.OuterWidth;
+            var InW = Groove.InnerWidth;
+            var InitX = Groove.InitX;
+            var InitZ = Groove.InitZ;
+            var G75 = {   //Z coordinates of groove points (in order)
+                A:0,
+                B:0,
+                C:0,
+                D:0,
+            };
+            var rad2deg = 180 / Math.PI;
+            var deg2rad = Math.PI / 180;
+
+            console.log("---------- Calculate() ----------");
+
+            if(isNaN(InW) || InW == 0){
+                if(Theta != 0){
+                  InW = OutW + (2 * H * Math.tan((Theta / 2) * deg2rad));
+                }else{
+                    InW = OutW;
+                }
+            }else if(isNaN(OutW) || OutW == 0){
+                if(Theta != 0){
+                  OutW = InW - (2 * H * Math.tan((Theta / 2) * deg2rad));
+                }else{
+                    OutW = InW;
+                }
+            }else if (isNaN(H) || H == 0) {
+              H = Math.tan((90 - Theta) * deg2rad) * ((OutW - InW) / 2);
+            }else if (OutW != 0 && InW != 0) {
+              Theta = Math.atan(((OutW-InW) / H)*deg2rad) / 2;
+            }
+            console.log("H = " + H + "\nOutW = " + OutW + "\nInW = "+InW);
+            OutW = Math.floor(OutW * 10000) / 10000;
+            InW = Math.floor(InW * 10000) / 10000;
+            H = Math.floor(H * 10000) / 10000;
+            G75.A = InitZ + ((OutW-InW) / 2);
+            document.getElementById("Code").innerHTML = "Code:<br><br>";
+
+            var Angle = (90 - (Theta / 2));
+            console.log("Angle = " + Angle + "\nTheta = " + Theta);
+            var NewZ = R * (1 - Math.tan((Angle / 2) * deg2rad));
+            console.log("NewZ = " + NewZ);
+            NewZ = Math.floor(NewZ * 10000) / 10000;
+            document.getElementById("NewZ").innerHTML = "Z Offset: " + NewZ + "mm";
+
+            console.log("R = " + R + "\nT01.Width = " + T01.Width);
+            if(T01.Width > InW || T01.Width > OutW){
+              document.getElementById("Code").innerHTML = "Cannot generate code!<br><br>Tool width > Groove width.";
+              document.getElementById("Code").style.color = "red";
+              console.error("T01.Width > Groove.Width");
+            }else if(InitX + Settings.SafetyX < H){
+              document.getElementById("Code").innerHTML = "Cannot generate code!<br><br>Initial X coordinate + Safety height < Groove depth.<br>Is groove depth negative?";
+              document.getElementById("Code").style.color = "red";
+              console.error("InitX + Settings.SafetyX < H");
+            }else if(InW > OutW){
+              document.getElementById("Code").innerHTML = "Cannot generate code!<br><br>Groove width (Interior) < Groove width (Surface).<br>Grooving tools cannot create dovetail-shaped grooves.";
+              document.getElementById("Code").style.color = "red";
+              console.error("InW > OutW");
+            }else if (H > T01.Height) {
+              document.getElementById("Code").innerHTML = "Cannot generate code!<br><br>Groove Depth > Tool Safety Height.<br>Please choose a longer gooving tool.";
+              document.getElementById("Code").style.color = "red";
+              console.error("H > Height");
+            }else{
+              if (H > T01.Height - 3) {
+                document.getElementById("Code").innerHTML = "Groove Depth is dangerously close to Tool Safety Height.<br>A longer gooving tool is recommended.";
+                console.warn("Groove Depth is dangerously close to Tool Safety Height.\nA longer gooving tool is recommended.");
+              }
+              document.getElementById("Code").style.color = "black";
+              document.getElementById("Code").innerHTML += "G0 ";
+              if(T01.Width <= Settings.LeaveZ * 2){
+                document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(G75.A)+"<br>G75 R1.2<br>G75 X"+Convert2Gcode((InitX + (H * 2))+Settings.LeaveX)+" P1000 F"+Settings.Feed+"<br>";
+              }else {
+                for (var i = 0; i+T01.Width <= InW; i+= (T01.Width - 1)) {
+                  if(i >= (InW-T01.Width)-T01.Width/2){
+                    document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(G75.A+(InW-T01.Width-Settings.LeaveZ))+"<br>G75 R1.2<br>G75 X"+Convert2Gcode((InitX + (H * 2))+Settings.LeaveX)+" P1000 F"+Settings.Feed+"<br>";
+                  }else{
+                    if(i<= 0){
+                      document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(G75.A+i+Settings.LeaveZ)+"<br>G75 R1.2<br>G75 X"+Convert2Gcode((InitX + (H * 2))+Settings.LeaveX)+" P1000 F"+Settings.Feed+"<br>";
+                    }else {
+                      document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(G75.A+i)+"<br>G75 R1.2<br>G75 X"+Convert2Gcode((InitX + (H * 2))+Settings.LeaveX)+" P1000 F"+Settings.Feed+"<br>";
+                    }
+                  }
+                }
+              }
+              if(Theta == 0){
+                document.getElementById("Code").innerHTML += "<br>(Finish)<br>";
+                document.getElementById("Code").innerHTML += "Z"+Convert2Gcode(InitZ-2)+"<br>G1 X"+Convert2Gcode(InitX)+"<br>Z"+Convert2Gcode(InitZ-NewZ)+" R0.5<br>X"+Convert2Gcode(InitX+(H*2))+"<br>W"+Convert2Gcode((InW - T01.Width)/2)+"<br>G0 X"+Convert2Gcode(InitX + Settings.SafetyX);
+                document.getElementById("Code").innerHTML += "<br>Z"+Convert2Gcode(InitZ+OutW+2-T01.Width)+"<br>G1 X"+Convert2Gcode(InitX)+"<br>Z"+Convert2Gcode((InitZ+OutW)-T01.Width)+" R0.5<br>X"+Convert2Gcode(InitX+(H*2))+"<br>W-"+Convert2Gcode((InW - T01.Width)/2)+"<br>G0 X"+Convert2Gcode(InitX + Settings.SafetyX);
+              }else{
+                var DeltaZ = (OutW-InW)/2;
+                console.log("DeltaZ = " + DeltaZ);
+                var Point = InitZ + (OutW / 2);
+                if(DeltaZ > T01.Width - 1){
+                  document.getElementById("Code").innerHTML += "<br>(Extra)<br>";
+                  for (var i = (T01.Width / 2) + (InW / 2); i <= DeltaZ + (InW / 2); i+= (T01.Width - 1)) {
+                    document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(Point+i-T01.Width)+"<br>G75 R1.2<br>G75 X" + Convert2Gcode(InitX + Settings.LeaveX + (H + ((i - Math.abs(InW / 2)) / Math.tan(Theta / 2 * deg2rad)))*2)+" P1000 F"+Settings.Feed+"<br>";
+                  }
+                  for (var i = (T01.Width / 2) + (InW / 2); i <= DeltaZ + (InW / 2); i+= (T01.Width - 1)) {
+                    document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(Point-i)+"<br>G75 R1.2<br>G75 X" + Convert2Gcode(InitX + Settings.LeaveX + (H + ((i - Math.abs(InW / 2)) / Math.tan(Theta / 2 * deg2rad)))*2)+" P1000 F"+Settings.Feed+"<br>";
+                  }
+                }
+                document.getElementById("Code").innerHTML += "<br>(Finish)<br>";
+                document.getElementById("Code").innerHTML += "Z"+Convert2Gcode(InitZ-2)+"<br>G1 X"+Convert2Gcode(InitX)+"<br>Z"+Convert2Gcode(InitZ-NewZ)+" R0.5<br>X"+Convert2Gcode(InitX+(H*2))+" A"+Convert2Gcode(270+(Theta/2))+"<br>W"+Convert2Gcode((InW - T01.Width)/2)+"<br>G0 X"+Convert2Gcode(InitX + Settings.SafetyX);
+                document.getElementById("Code").innerHTML += "<br>Z"+Convert2Gcode(InitZ+OutW+2-T01.Width)+"<br>G1 X"+Convert2Gcode(InitX)+"<br>Z"+Convert2Gcode((InitZ+OutW+NewZ)-T01.Width)+" R0.5<br>X"+Convert2Gcode(InitX+(H*2))+" A"+Convert2Gcode(270-(Theta/2))+"<br>W-"+Convert2Gcode((InW - T01.Width)/2)+"<br>G0 X"+Convert2Gcode(InitX + Settings.SafetyX);
+              }
+            }
+            document.getElementById("NewW").innerHTML = "Groove Width (Surface): " + OutW + "mm";
+            document.getElementById("Neww").innerHTML = "Groove Width (interior): " + InW + "mm";
+        }
+        function SetToolR(){
+          var r = parseFloat(prompt("Tool Radius (in mm, e.g. 0.2):",T01.R));
+          while(isNaN(r)){
+            r = parseFloat(prompt("Tool Radius must be a number:",T01.R));
+          }
+          if(r != null){
+            T01.R = r;
+            document.getElementById("NewToolR").innerHTML = "Tool Radius = " + T01.R + "mm";
+          }
+        }
+        function SetToolWidth(){
+          var width = parseFloat(prompt("Tool Width (in mm, e.g. 3):",T01.Width));
+          while(isNaN(width)){
+            width = parseFloat(prompt("Tool Width must be a number:",T01.Width));
+          }
+          if(width != null){
+            T01.Width = width;
+            document.getElementById("NewToolWidth").innerHTML = "Tool Width = " + T01.Width + "mm";
+          }
+        }
+        function SetToolHeight(){
+          var height = parseFloat(prompt("Usable Tool Length (in mm, e.g. 12):",T01.Height));
+          while(isNaN(height)){
+            height = parseFloat(prompt("Tool Length must be a number:",T01.Height));
+          }
+          if(height != null){
+            T01.Height = height;
+            document.getElementById("NewToolHeight").innerHTML = "Tool Length = " + T01.Height + "mm";
+          }
+        }
+        function SetGrooveAngle(){
+          var angle = parseFloat(prompt("Taper (in Degrees, e.g. 40):",Groove.Angle));
+          while(isNaN(angle)){
+            angle = parseFloat(prompt("Taper must be a number:",Groove.Angle));
+          }
+          if(angle != null){
+            Groove.Angle = angle;
+            document.getElementById("NewGrooveAngle").innerHTML = "Groove Taper Angle = " + Groove.Angle + "°";
+          }
+        }
+        function SetGrooveHeight(){
+          var height = parseFloat(prompt("Depth from surface (in mm, e.g. 8):",Groove.Height));
+          while(isNaN(height)){
+            height = parseFloat(prompt("Depth must be a number:",Groove.Height));
+          }
+          if(height != null){
+            Groove.Height = height;
+            document.getElementById("NewGrooveHeight").innerHTML = "Groove Depth = " + Groove.Height + "mm";
+          }
+        }
+        function SetGrooveOutWidth(){
+          var outerWidth = parseFloat(prompt("Width (in mm, e.g. 3).",Groove.OuterWidth));
+          while(isNaN(outerWidth)){
+            outerWidth = parseFloat(prompt("Width must be a number:",Groove.OuterWidth));
+          }
+          if(outerWidth != null){
+            Groove.OuterWidth = outerWidth;
+            document.getElementById("NewGrooveOutWidth").innerHTML = "Groove Width (Surface) = " + Groove.OuterWidth + "mm";
+          }
+        }
+        function SetGrooveInWidth(){
+          var innerWidth = parseFloat(prompt("Width (in mm, e.g. 3).",Groove.InnerWidth));
+          while(isNaN(innerWidth)){
+            innerWidth = parseFloat(prompt("Width must be a number:",Groove.InnerWidth));
+          }
+          if(innerWidth != null){
+            Groove.InnerWidth = innerWidth;
+            document.getElementById("NewGrooveInWidth").innerHTML = "Groove Width (Interior) = " + Groove.InnerWidth + "mm";
+          }
+        }
+        function SetSettingsSafetyX(){
+          var safetyX = parseFloat(prompt("Safety X Height (in mm, e.g. 2).",Settings.SafetyX));
+          while(isNaN(safetyX)){
+            safetyX = parseFloat(prompt("Width must be a number:",Settings.SafetyX));
+          }
+          if(safetyX != null){
+            Settings.SafetyX = safetyX;
+            document.getElementById("NewSettingsSafetyX").innerHTML = "Safety X Height = " + Settings.SafetyX + "mm";
+          }
+        }
+        function SetSettingsLeaveX(){
+          var leaveX = parseFloat(prompt("X-axis offset to leave (in mm, e.g. 0.3).",Settings.LeaveX));
+          while(isNaN(leaveX)){
+            leaveX = parseFloat(prompt("Leave X must be a number:",Settings.LeaveX));
+          }
+          if(leaveX != null){
+            Settings.LeaveX = leaveX;
+            document.getElementById("NewSettingsLeaveX").innerHTML = "Leave X = " + Settings.LeaveX + "mm";
+          }
+        }
+        function SetSettingsLeaveZ(){
+          var leaveZ = parseFloat(prompt("Z-axis offset to leave (in mm, e.g. 0.3).",Settings.LeaveZ));
+          while(isNaN(leaveZ)){
+            leaveZ = parseFloat(prompt("Leave Z must be a number:",Settings.LeaveZ));
+          }
+          if(leaveZ != null){
+            Settings.LeaveZ = leaveZ;
+            document.getElementById("NewSettingsLeaveZ").innerHTML = "Leave Z = " + Settings.LeaveZ + "mm";
+          }
+        }
+        function SetSettingsFeed(){
+          var feed = parseFloat(prompt("Feed Rate (in mm per revolution, e.g. 0.06).",Settings.Feed));
+          while(isNaN(feed)){
+            feed = parseFloat(prompt("Feed Rate must be a number:",Settings.Feed));
+          }
+          if(feed != null){
+            Settings.Feed = feed;
+            document.getElementById("NewSettingsFeed").innerHTML = "Feed Rate = " + Settings.Feed + "mm/rev";
+          }
+        }
+        function SetInitPos(){
+          var initX = parseFloat(prompt("X Position at top left corner of groove:",Groove.InitX));
+          while(isNaN(initX)){
+            initX = parseFloat(prompt("Position must be a number:",Groove.InitX));
+          }
+          var initZ = parseFloat(prompt("Z Position at top left corner of groove:",Groove.InitZ));
+          while(initZ == null){
+            initX = parseFloat(prompt("Position must be a number:",Groove.InitZ));
+          }
+          if(initX != null){
+            Groove.InitX = initX;
+          }
+          if(initZ != null){
+            Groove.InitZ = initZ;
+          }
+          if(Groove.InitX == 0 && Groove.InitZ == 0){
+              document.getElementById("NewInitPos").innerHTML = "Position of groove top left corner = X" + Groove.InitX + " Z" + Groove.InitZ + " (Origin)";
+          }else{
+              document.getElementById("NewInitPos").innerHTML = "Position of groove top left corner = X" + Groove.InitX + " Z" + Groove.InitZ;
+          }
+        }
+        function Convert2Gcode(rawNum){
+            if(rawNum % 1 == 0){
+                return (rawNum + ".");
+            }else{
+                return (Math.floor(rawNum * 1000) / 1000).toString();
+            }
+        }
+    </script>
+  </body>
+</html>
