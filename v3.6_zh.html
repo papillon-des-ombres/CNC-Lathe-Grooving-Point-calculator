@@ -1,0 +1,375 @@
+<!--
+MIT License
+
+Copyright (c) 2019 Anthony Reimche
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <title></title>
+    <style>
+      body{background-color:#EEEEEE;}
+      div{
+        font-family:courier;
+          text-align: center;
+      }
+      button{
+        font-family:courier;
+        background-color: #555555;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+      }
+    </style>
+  </head>
+  <body>
+      <a href="https://adminlog.github.io/CNC-Lathe-Grooving-Point-calculator/GroovingCalculator%20v3.6.html" style="text-align: right; margin-right: 30px; margin-top: 50px; font-family: sans">English</a>
+      <div>
+        <h1 style="margin-top:80px">FANUC CNC 車床切槽程式計算器</h1>
+        <h2 style="margin-top:30px">程式設計: 郭博淵<br>V3.6</h2>
+        <p>Generates FANUC grooving codes using G75, R and A.<br>不支援五軸/車銑複合機台.<br><br>Copyright (c) 2019 Anthony Reimche</p>
+    </div>
+    <div class="">
+        <img style="margin-top:50px" src="data:image/png;base64,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" alt="Diagram">
+    </div>
+    <div style="margin-top:80px">
+      <h2>刀具設定</h2>
+      <button onclick="SetToolR()" id="NewToolR">半徑 = 0.2mm</button>
+      <br><br>
+      <button onclick="SetToolWidth()" id="NewToolWidth">寬度 = 3mm</button>
+      <br><br>
+      <button onclick="SetToolHeight()" id="NewToolHeight">長度 = 12mm</button>
+      <br><br>
+      <h2>槽設定</h2>
+      <!--<p style="color: #808080">Description of the groove.</p>--!>
+      <button onclick="SetGrooveAngle()" id="NewGrooveAngle">V型槽之夾角度 = 0°</button>
+      <br><br>
+      <button onclick="SetGrooveHeight()" id="NewGrooveHeight">槽深 = 8mm</button>
+      <br><br>
+      <button onclick="SetGrooveOutWidth()" id="NewGrooveOutWidth">槽口寬度 = 5mm</button>
+      <br><br>
+      <button onclick="SetGrooveInWidth()" id="NewGrooveInWidth">槽底寬度 = 0mm</button>
+      <br><br>
+      <button onclick="SetInitPos()" id="NewInitPos">槽口左側定位座標 = X0 Z0 (原點)</button>
+      <br><br>
+      <h2>安全設定</h2>
+      <!--<p style="color: #CC8080">Don't change these if you don't know what they mean.</p>--!>
+      <button onclick="SetSettingsSafetyX()" id="NewSettingsSafetyX">安全高度 = 2mm</button>
+      <br><br>
+      <button onclick="SetSettingsLeaveX()" id="NewSettingsLeaveX">X預留量 = 0.3mm</button>
+      <br><br>
+      <button onclick="SetSettingsLeaveZ()" id="NewSettingsLeaveZ">Z預留量 = 0.3mm</button>
+      <br><br>
+      <button onclick="SetSettingsFeed()" id="NewSettingsFeed">進給率 = 0.06mm/rev</button>
+      <br><br><br><br><br>
+      <button onclick="Calculate()" id="Submit" style="background-color: #f44336">計算</button>
+      <br><br><br><br>
+      <p style="margin-top:30px" id="NewZ"></p>
+      <p id="NewW"></p>
+      <p id="Neww"></p>
+    </div>
+    <div style="margin-top:50px; margin-bottom:200px; margin-left: 30%; text-align:left">
+      <p style="margin-top:10px" id="Code"></p>
+    </div>
+    <script type="text/javascript">
+      var T01 = {
+        R:0.2,
+        Width:3,
+        Height:12,
+      };
+      var Groove = {
+        Angle:0,
+        Height:8,
+        OuterWidth:5,
+        InnerWidth:0,
+        InitX:0,
+        InitZ:0,
+      };
+      var Settings = {
+          SafetyX:2,
+          Feed:0.06,
+          LeaveX:0.3,
+          LeaveZ:0.3,
+      }
+        function Calculate(){
+            var R = T01.R;
+            var Theta = Groove.Angle;
+            var H = -Groove.Height;
+            var OutW = Groove.OuterWidth;
+            var InW = Groove.InnerWidth;
+            var InitX = Groove.InitX;
+            var InitZ = Groove.InitZ;
+            var G75 = {   //Z coordinates of groove points (in order)
+                A:0,
+            };
+            var rad2deg = 180 / Math.PI;
+            var deg2rad = Math.PI / 180;
+
+            
+
+            console.log("---------- Calculate() ----------");
+
+            document.getElementById("Code").style.color = "black";
+            document.getElementById("Code").innerHTML = "Generating code...";
+
+            if(isNaN(InW) || InW == 0){
+                if(Theta != 0){
+                  InW = OutW + (2 * H * Math.tan((Theta / 2) * deg2rad));
+                }else{
+                    InW = OutW;
+                }
+            }else if(isNaN(OutW) || OutW == 0){
+                if(Theta != 0){
+                  OutW = InW - (2 * H * Math.tan((Theta / 2) * deg2rad));
+                }else{
+                    OutW = InW;
+                }
+            }else if (isNaN(H) || H == 0) {
+              H = Math.tan((90 - Theta) * deg2rad) * ((OutW - InW) / 2);
+            }else if (OutW != 0 && InW != 0) {
+              Theta = Math.atan(((OutW-InW) / H)*deg2rad) / 2;
+            }
+            console.log("H = " + H + "\nOutW = " + OutW + "\nInW = "+InW);
+            OutW = Math.floor(OutW * 10000) / 10000;
+            InW = Math.floor(InW * 10000) / 10000;
+            H = Math.floor(H * 10000) / 10000;
+            G75.A = InitZ + ((OutW-InW) / 2);
+            document.getElementById("Code").innerHTML = "程式:<br><br>";
+
+            var Angle = (90 - (Theta / 2));
+            console.log("Angle = " + Angle + "\nTheta = " + Theta);
+            var NewZ = R * (1 - Math.tan((Angle / 2) * deg2rad));
+            console.log("NewZ = " + NewZ);
+            NewZ = Math.floor(NewZ * 10000) / 10000;
+            document.getElementById("NewZ").innerHTML = "Z補正: " + NewZ + "mm";
+
+            console.log("R = " + R + "\nT01.Width = " + T01.Width);
+            if(T01.Width > InW || T01.Width > OutW){
+              document.getElementById("Code").innerHTML = "無法產生程式!<br><br>刀寬 > 槽寬";
+              document.getElementById("Code").style.color = "red";
+              console.error("T01.Width > Groove.Width");
+            }else if(InitX + Settings.SafetyX < H){
+              document.getElementById("Code").innerHTML = "無法產生程式!<br><br>槽口左側定位X座標 + 安全高度 < 槽寬<br>";
+              document.getElementById("Code").style.color = "red";
+              console.error("InitX + Settings.SafetyX < H");
+            }else if(InW > OutW){
+              document.getElementById("Code").innerHTML = "無法產生程式!<br><br>槽口寬度 < 槽底寬度<br>無法產生鳩尾槽";
+              document.getElementById("Code").style.color = "red";
+              console.error("InW > OutW");
+            }else if (H > T01.Height) {
+              document.getElementById("Code").innerHTML = "無法產生程式!<br><br>槽深 > 刀具長度<br>請使用長度大於槽深之切槽刀";
+              document.getElementById("Code").style.color = "red";
+              console.error("H > Height");
+            }else{
+              if (H > T01.Height - 3) {
+                document.getElementById("Code").innerHTML = "<strong>安全距離提醒!</strong><br>建議更換較長之切槽刀";
+                console.warn("Groove Depth is dangerously close to Tool Safety Height.\nA longer gooving tool is recommended.");
+              }
+              document.getElementById("Code").style.color = "black";
+              document.getElementById("Code").innerHTML += "G0 ";
+              if(T01.Width <= Settings.LeaveZ * 2){
+                document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(G75.A)+"<br>G75 R1.2<br>G75 X"+Convert2Gcode((InitX + (H * 2))+Settings.LeaveX)+" P1000 F"+Settings.Feed+"<br>";
+              }else {
+                for (var i = 0; i+T01.Width <= InW; i+= (T01.Width - 1)) {
+                  if(i >= (InW-T01.Width)-T01.Width/2){
+                    document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(G75.A+(InW-T01.Width-Settings.LeaveZ))+"<br>G75 R1.2<br>G75 X"+Convert2Gcode((InitX + (H * 2))+Settings.LeaveX)+" P1000 F"+Settings.Feed+"<br>";
+                  }else{
+                    if(i<= 0){
+                      document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(G75.A+i+Settings.LeaveZ)+"<br>G75 R1.2<br>G75 X"+Convert2Gcode((InitX + (H * 2))+Settings.LeaveX)+" P1000 F"+Settings.Feed+"<br>";
+                    }else {
+                      document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(G75.A+i)+"<br>G75 R1.2<br>G75 X"+Convert2Gcode((InitX + (H * 2))+Settings.LeaveX)+" P1000 F"+Settings.Feed+"<br>";
+                    }
+                  }
+                }
+              }
+              if(Theta == 0){
+                document.getElementById("Code").innerHTML += "<br>(Finish)<br>";
+                document.getElementById("Code").innerHTML += "Z"+Convert2Gcode(InitZ-2)+"<br>G1 X"+Convert2Gcode(InitX)+"<br>Z"+Convert2Gcode(InitZ-NewZ)+" R0.5<br>X"+Convert2Gcode(InitX+(H*2))+"<br>W"+Convert2Gcode((InW - T01.Width)/2)+"<br>G0 X"+Convert2Gcode(InitX + Settings.SafetyX);
+                document.getElementById("Code").innerHTML += "<br>Z"+Convert2Gcode(InitZ+OutW+2-T01.Width)+"<br>G1 X"+Convert2Gcode(InitX)+"<br>Z"+Convert2Gcode((InitZ+OutW)-T01.Width)+" R0.5<br>X"+Convert2Gcode(InitX+(H*2))+"<br>W-"+Convert2Gcode((InW - T01.Width)/2)+"<br>G0 X"+Convert2Gcode(InitX + Settings.SafetyX);
+              }else{
+                var DeltaZ = (OutW-InW)/2;
+                console.log("DeltaZ = " + DeltaZ);
+                var Point = InitZ + (OutW / 2);
+                if(DeltaZ > T01.Width - 1){
+                  document.getElementById("Code").innerHTML += "<br>(Extra)<br>";
+                  for (var i = (T01.Width / 2) + (InW / 2); i <= DeltaZ + (InW / 2); i+= (T01.Width - 1)) {
+                    document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(Point+i-T01.Width)+"<br>G75 R1.2<br>G75 X" + Convert2Gcode(InitX + Settings.LeaveX + (H + ((i - Math.abs(InW / 2)) / Math.tan(Theta / 2 * deg2rad)))*2)+" P1000 F"+Settings.Feed+"<br>";
+                  }
+                  for (var i = (T01.Width / 2) + (InW / 2); i <= DeltaZ + (InW / 2); i+= (T01.Width - 1)) {
+                    document.getElementById("Code").innerHTML += "X"+Convert2Gcode(InitX + Settings.SafetyX)+" Z"+Convert2Gcode(Point-i)+"<br>G75 R1.2<br>G75 X" + Convert2Gcode(InitX + Settings.LeaveX + (H + ((i - Math.abs(InW / 2)) / Math.tan(Theta / 2 * deg2rad)))*2)+" P1000 F"+Settings.Feed+"<br>";
+                  }
+                }
+                document.getElementById("Code").innerHTML += "<br>(Finish)<br>";
+                document.getElementById("Code").innerHTML += "Z"+Convert2Gcode(InitZ-2)+"<br>G1 X"+Convert2Gcode(InitX)+"<br>Z"+Convert2Gcode(InitZ-NewZ)+" R0.5<br>X"+Convert2Gcode(InitX+(H*2))+" A"+Convert2Gcode(270+(Theta/2))+"<br>W"+Convert2Gcode((InW - T01.Width)/2)+"<br>G0 X"+Convert2Gcode(InitX + Settings.SafetyX);
+                document.getElementById("Code").innerHTML += "<br>Z"+Convert2Gcode(InitZ+OutW+2-T01.Width)+"<br>G1 X"+Convert2Gcode(InitX)+"<br>Z"+Convert2Gcode((InitZ+OutW+NewZ)-T01.Width)+" R0.5<br>X"+Convert2Gcode(InitX+(H*2))+" A"+Convert2Gcode(270-(Theta/2))+"<br>W-"+Convert2Gcode((InW - T01.Width)/2)+"<br>G0 X"+Convert2Gcode(InitX + Settings.SafetyX);
+              }
+            }
+            document.getElementById("NewW").innerHTML = "槽口寬度: " + OutW + "mm";
+            document.getElementById("Neww").innerHTML = "槽底寬度: " + InW + "mm";
+        }
+
+        function SetToolR(){
+          var r = parseFloat(prompt("刀具半徑 (mm, 例如 0.2):",T01.R));
+          while(isNaN(r)){
+            r = parseFloat(prompt("刀具半徑須為數字:",T01.R));
+          }
+          if(r != null){
+            T01.R = r;
+            document.getElementById("NewToolR").innerHTML = "半徑 = " + T01.R + "mm";
+          }
+        }
+        function SetToolWidth(){
+          var width = parseFloat(prompt("刀具寬度 (mm, 例如 3):",T01.Width));
+          while(isNaN(width)){
+            width = parseFloat(prompt("刀具寬度須為數字:",T01.Width));
+          }
+          if(width != null){
+            T01.Width = width;
+            document.getElementById("NewToolWidth").innerHTML = "寬度 = " + T01.Width + "mm";
+          }
+        }
+        function SetToolHeight(){
+          var height = parseFloat(prompt("刀具可用範圍之長度 (mm, 例如 12):",T01.Height));
+          while(isNaN(height)){
+            height = parseFloat(prompt("刀具長度須為數字:",T01.Height));
+          }
+          if(height != null){
+            T01.Height = height;
+            document.getElementById("NewToolHeight").innerHTML = "長度 = " + T01.Height + "mm";
+          }
+        }
+        function SetGrooveAngle(){
+          var angle = parseFloat(prompt("切割槽之夾角度 (度數, 例如 40):",Groove.Angle));
+          while(isNaN(angle)){
+            angle = parseFloat(prompt("切割槽之夾角度須為數字:",T01.Angle));
+          }
+          if(angle != null){
+            Groove.Angle = angle;
+            document.getElementById("NewGrooveAngle").innerHTML = "V型槽夾角 = " + Groove.Angle + "°";
+          }
+        }
+        function SetGrooveHeight(){
+          var height = parseFloat(prompt("切割槽之深度 (mm, 例如 8):",Groove.Height));
+          while(isNaN(height)){
+            height = parseFloat(prompt("槽深須為數字:",T01.Height));
+          }
+          if(height != null){
+            Groove.Height = height;
+            document.getElementById("NewGrooveHeight").innerHTML = "槽深 = " + Groove.Height + "mm";
+          }
+        }
+        function SetGrooveOutWidth(){
+          var outerWidth = parseFloat(prompt("槽口寬度 (mm, 例如 3).",Groove.OuterWidth));
+          while(isNaN(outerWidth)){
+            outerWidth = parseFloat(prompt("槽口寬度須為數字:",Groove.OuterWidth));
+          }
+          if(outerWidth != null){
+            Groove.OuterWidth = outerWidth;
+            document.getElementById("NewGrooveOutWidth").innerHTML = "槽口寬度 = " + Groove.OuterWidth + "mm";
+          }
+        }
+        function SetGrooveInWidth(){
+          var innerWidth = parseFloat(prompt("槽底寬度 (in mm, 例如 3).",Groove.InnerWidth));
+          while(isNaN(innerWidth)){
+            innerWidth = parseFloat(prompt("槽底寬度須為數字:",Groove.InnerWidth));
+          }
+          if(innerWidth != null){
+            Groove.InnerWidth = innerWidth;
+            document.getElementById("NewGrooveInWidth").innerHTML = "槽底寬度 = " + Groove.InnerWidth + "mm";
+          }
+        }
+        function SetSettingsSafetyX(){
+          var safetyX = parseFloat(prompt("安全X高度 (in mm, 例如 2).",Settings.SafetyX));
+          while(isNaN(safetyX)){
+            safetyX = parseFloat(prompt("安全高度須為數字:",Settings.SafetyX));
+          }
+          if(safetyX != null){
+            Settings.SafetyX = safetyX;
+            document.getElementById("NewSettingsSafetyX").innerHTML = "安全高度 = " + Settings.SafetyX + "mm";
+          }
+        }
+        function SetSettingsLeaveX(){
+          var leaveX = parseFloat(prompt("X預留量 (mm, 例如 0.3).",Settings.LeaveX));
+          while(isNaN(leaveX)){
+            leaveX = parseFloat(prompt("X預留量須為數字:",Settings.LeaveX));
+          }
+          if(leaveX != null){
+            Settings.LeaveX = leaveX;
+            document.getElementById("NewSettingsLeaveX").innerHTML = "X預留量 = " + Settings.LeaveX + "mm";
+          }
+        }
+        function SetSettingsLeaveZ(){
+          var leaveZ = parseFloat(prompt("Z預留量 (mm, 例如 0.3).",Settings.LeaveZ));
+          while(isNaN(leaveZ)){
+            leaveZ = parseFloat(prompt("Z預留量須為數字:",Settings.LeaveZ));
+          }
+          if(leaveZ != null){
+            Settings.LeaveZ = leaveZ;
+            document.getElementById("NewSettingsLeaveZ").innerHTML = "Z預留量 = " + Settings.LeaveZ + "mm";
+          }
+        }
+        function SetSettingsFeed(){
+          var feed = parseFloat(prompt("進給率 (mm/rev, 例如 0.06).",Settings.Feed));
+          while(isNaN(feed)){
+            feed = parseFloat(prompt("進給率須為數字:",Settings.Feed));
+          }
+          if(feed != null){
+            Settings.Feed = feed;
+            document.getElementById("NewSettingsFeed").innerHTML = "進給率 = " + Settings.Feed + "mm/rev";
+          }
+        }
+        function SetInitPos(){
+          var initX = parseFloat(prompt("槽口左側定位X座標:",Groove.InitX));
+          while(isNaN(initX)){
+            initX = parseFloat(prompt("槽口左側定位X座標須為數字:",Groove.InitX));
+          }
+          var initZ = parseFloat(prompt("槽口左側定位Z座標:",Groove.InitZ));
+          while(isNaN(initZ)){
+            initZ = parseFloat(prompt("槽口左側定位Z座標須為數字:",Groove.InitZ));
+          }
+          if(initX != null){
+            Groove.InitX = initX;
+          }
+          if(initZ != null){
+            Groove.InitZ = initZ;
+          }
+          if(Groove.InitX == 0 && Groove.InitZ == 0){
+              document.getElementById("NewInitPos").innerHTML = "槽口左側定位座標 = X" + Groove.InitX + " Z" + Groove.InitZ + " (原點)";
+          }else{
+              document.getElementById("NewInitPos").innerHTML = "槽口左側定位座標 = X" + Groove.InitX + " Z" + Groove.InitZ;
+          }
+        }
+        function Convert2Gcode(rawNum){
+            if(rawNum % 1 == 0){
+                return (rawNum + ".");
+            }else{
+                return (Math.floor(rawNum * 1000) / 1000).toString();
+            }
+        }
+    </script>
+  </body>
+</html>
