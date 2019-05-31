@@ -347,7 +347,7 @@ SOFTWARE.
           }
         }
         function SetSettingsLeaveX(){
-          var leaveX = parseFloat(prompt("X-axis offset to leave (in mm, e.g. 0.3).",Settings.LeaveX));
+          var leaveX = parseFloat(prompt("X-axis offset to leave for finish (in mm, e.g. 0.3).",Settings.LeaveX));
           while(isNaN(leaveX)){
             leaveX = parseFloat(prompt("Leave X must be a number:",Settings.LeaveX));
           }
@@ -358,7 +358,7 @@ SOFTWARE.
           }
         }
         function SetSettingsLeaveZ(){
-          var leaveZ = parseFloat(prompt("Z-axis offset to leave (in mm, e.g. 0.3).",Settings.LeaveZ));
+          var leaveZ = parseFloat(prompt("Z-axis offset to leave for finish (in mm, e.g. 0.3).",Settings.LeaveZ));
           while(isNaN(leaveZ)){
             leaveZ = parseFloat(prompt("Leave Z must be a number:",Settings.LeaveZ));
           }
