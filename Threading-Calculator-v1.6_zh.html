@@ -1,0 +1,439 @@
+<!--
+MIT License
+
+Copyright (c) 2019 Anthony Reimche
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<!DOCTYPE html>
+<html lang="zh" dir="ltr">
+	<head>
+	<meta charset="utf-8">
+	<title></title>
+	<style>
+		body{background-color:#EEEEEE;}
+		div{
+		font-family:sans;
+			text-align: center;
+		}
+		button{
+		font-family:sans;
+		background-color: #555555;
+		border: none;
+		color: white;
+		padding: 15px 32px;
+		text-align: center;
+		text-decoration: none;
+		display: inline-block;
+		font-size: 16px;
+		}
+		#Code{
+			font-family:courier;
+		}
+	</style>
+	</head>
+	<body>
+		<a href="https://adminlog.github.io/Threading-Calculator/v1.6_en.html" style="text-align: right; margin-right: 30px; margin-top: 50px; font-family: sans" lang="en">English</a>
+		<div>
+			<h1 style="margin-top:80px"><span lang="en" style="font-family: courier">FANUC CNC </span>車床螺紋程式計算器</h1>
+			<h2 style="margin-top:30px">程式設計: 郭博淵<br>v1.6</h2>
+		<p><span lang="en" style="font-family: courier">Generates FANUC threading codes using G76. Type negative thread length for left hand threads, using G32.</span><br>不支援五軸/車銑複合機台.<br><br><span lang="en" style="font-family: courier">Copyright (c) 2019 Anthony Reimche</span></p>
+	</div>
+    <div>
+        <img src="data:image/png;base64,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" alt="Diagram">
+    </div>
+	<div style="margin-top:80px">
+		<h2>螺紋設定</h2>
+		<!--<p style="color: #808080">Description of the Thread.</p>--!>
+		<button onclick="SetThreadPitch()" id="NewThreadPitch">螺距 = 2mm</button>
+		<br><br>
+		<button onclick="SetThreadAngle()" id="NewThreadAngle">角度 = 60°</button>
+		<br><br>
+		<button onclick="SetThreadLength()" id="NewThreadLength">長度 = 14mm</button>
+		<br><br>
+		<button onclick="SetThreadTaper()" id="NewThreadTaper">錐度 = 0°</button>
+		<br><br>
+		<button onclick="SetThreadNum()" id="NewThreadNum">螺牙之數量 = 1N</button>
+		<br><br>
+		<button onclick="SetThreadFinish()" id="NewThreadFinish">精修 = 1 次</button>
+		<br><br>
+		<button onclick="SetThreadPullout()" id="NewThreadPullout">退刀距離 = 1 x 螺距</button>
+		<br><br>
+		<button onclick="SetInitPos()" id="NewInitPos">螺紋座標 = M30 Z0</button>
+		<br><br>
+		<div id="OutToggleIn">
+			<button onclick="ToggleIn()">外螺紋</button>
+			<br><br>
+		</div>
+		<div id="InToggleOut" style="display:none">
+			<button onclick="ToggleOut()">內螺紋</button>
+			<br><br>
+		</div>
+		<h2>安全設定</h2>
+		<!--<p style="color: #CC8080">Don't change these if you don't know what they mean.</p>--!>
+		<button onclick="SetSettingsSafetyX()" id="NewSettingsSafetyX">安全高度 = 5mm</button>
+		<br><br>
+		<button onclick="SetSettingsTimes()" id="NewSettingsTimes">切削次數 = 10 次</button>
+		<br><br>
+		<button onclick="SetSettingsLeave()" id="NewSettingsLeave">預留量 = 0.05mm</button>
+		<br><br>
+		<button onclick="SetSettingsSpeed()" id="NewSettingsSpeed">切削速度 = 130m/min</button>
+		<br><br><br><br><br>
+		<button onclick="Calculate()" id="Submit" style="background-color: #f44336">計算</button>
+		<br><br><br><br>
+		<p style="margin-top:30px" id="MajorDiameter"></p>
+		<p style="margin-top:30px" id="CuttingSpeed"></p>
+	</div>
+	<div style="margin-top:50px; margin-bottom:200px; margin-left: 30%; text-align:left">
+		<p style="margin-top:10px" id="Code"></p>
+	</div>
+	<script type="text/javascript">
+		var Thread = {
+		Pitch:2,
+		Angle:60,
+		Length:14,
+		InitX:30,
+		InitZ:0,
+		Taper:0,
+		Finish:1,
+		Pullout:1,
+		Num:1,
+		Internal:false,
+		};
+		var Settings = {
+			SafetyX:5,
+			Times:10,
+			Leave:0.05,
+			Min:0.3,
+			Speed:130,
+		}
+		function Calculate(){
+			var Pitch = Thread.Pitch;
+			var Angle = -Thread.Angle;
+			var Length = Thread.Length;
+			var Taper = Thread.Taper;
+			var Finish = Thread.Finish;
+			var Pullout = Thread.Pullout * 10;
+			var Leave = Settings.Leave;
+			var Num = Thread.Num;
+
+			var rad2deg = 180 / Math.PI;
+			var deg2rad = Math.PI / 180;
+
+			console.log("---------- Calculate() ----------");
+
+			document.getElementById("Code").style.color = "black";
+
+			if(!Thread.Internal){
+				var MajorD = Thread.InitX;
+				document.getElementById("MajorDiameter").innerHTML = "螺紋外徑 = " + MajorD;
+				var RPM = Settings.Speed * 1000 / Math.PI / Thread.InitX;
+				document.getElementById("CuttingSpeed").innerHTML = "轉速 = " + Math.round(RPM) + "RPM";
+
+				var Feed = Pitch;
+				var H = 0.640327 * Pitch;
+
+				if(Length > 0){
+					for (var i = 0; i < Num; i++) {
+						document.getElementById("Code").innerHTML += "G0 X" + Convert2Gcode(Thread.InitX + Settings.SafetyX) + " Z" + Convert2Gcode(Thread.InitZ + Settings.SafetyX + (i * Pitch)) + "<br>G76 P";
+						if(Finish < 10){
+						document.getElementById("Code").innerHTML += "0" + Finish;
+						}else{
+						document.getElementById("Code").innerHTML += "" + Finish;
+						}
+						if(Pullout < 10){
+						document.getElementById("Code").innerHTML += "0" + Pullout;
+						}else{
+						document.getElementById("Code").innerHTML += "" + Pullout;
+						}
+						if(Math.abs(Angle) < 10){
+							document.getElementById("Code").innerHTML += "0" + Math.abs(Angle);
+						}else{
+							document.getElementById("Code").innerHTML += "" + Math.abs(Angle);
+						}
+						document.getElementById("Code").innerHTML += " Q050 R" + Settings.Leave + "<br>G76 X" + Convert2Gcode(Thread.InitX - (2 * H)) + " Z" + Convert2Gcode(Thread.InitZ - Length);
+						if(Taper != 0){
+						document.getElementById("Code").innerHTML += " R" + Convert2Gcode(-Math.tan(Taper * deg2rad) * Length);
+						}
+						document.getElementById("Code").innerHTML += " P" + Math.round(H * 1000) + " Q" + Math.round(H / Math.sqrt(Settings.Times) * 1000) + " F" + Convert2Gcode(Num * Pitch) + "<br>";
+					}
+				} else {
+					document.getElementById("Code").innerHTML += "G0 X" + Convert2Gcode(Thread.InitX + Settings.SafetyX) + " Z" + Convert2Gcode(Thread.InitZ + Length) + "<br>";
+					var Cut = H / (Settings.Times / 2);
+					var CurrentX = Thread.InitX - (Cut * 2);
+					var i = 1;
+
+					for(var j = 0; j < Num; j++){
+						CurrentX = Thread.InitX - (Cut * 2);
+						while(CurrentX > Thread.InitX - (H * 2)) {
+							document.getElementById("Code").innerHTML += "<br>G32 X" + Convert2Gcode(CurrentX) + " F" + Convert2Gcode(Num * Pitch) + "<br>G32";
+							if(Taper != 0){
+							document.getElementById("Code").innerHTML += " X" + Convert2Gcode(CurrentX - (Math.tan(Taper * deg2rad) * Length / 2));
+							}
+							document.getElementById("Code").innerHTML += " Z" + Convert2Gcode(Thread.InitZ);
+							if(j > 0){
+								document.getElementById("Code").innerHTML += " Q" + Math.round((360 / Num) * j * 1000);
+							}
+							document.getElementById("Code").innerHTML += " F" + Convert2Gcode(Num * Pitch);
+							document.getElementById("Code").innerHTML += "<br>G0 X" + Convert2Gcode(Thread.InitX + Settings.SafetyX) + "<br>Z" + Convert2Gcode((Thread.InitZ + Length));
+							if(Cut * Math.sqrt(i) > Settings.Min){
+								CurrentX -= (Cut / Math.sqrt(i) * 2);
+							}else{
+								CurrentX -= Settings.Min * 2;
+							}
+							i++;
+						}
+						CurrentX = Thread.InitX - (H * 2);
+						document.getElementById("Code").innerHTML += "<br>G32 X" + Convert2Gcode(CurrentX) + " F" + Convert2Gcode(Num * Pitch) + "<br>G32";
+						if(Taper != 0){
+						document.getElementById("Code").innerHTML += " X" + Convert2Gcode(CurrentX - (Math.tan(Taper * deg2rad) * Length / 2));
+						}
+						document.getElementById("Code").innerHTML += " Z" + Convert2Gcode(Thread.InitZ);
+						if(j > 0){
+							document.getElementById("Code").innerHTML += " Q" + Math.round((360 / Num) * j * 1000);
+						}
+						document.getElementById("Code").innerHTML += " F" + Convert2Gcode(Num * Pitch);
+						document.getElementById("Code").innerHTML += "<br>G0 X" + Convert2Gcode(Thread.InitX + Settings.SafetyX) + "<br>Z" + Convert2Gcode((Thread.InitZ + Length));
+					}
+				}
+			}else{
+				var MajorD = Thread.InitX;
+				document.getElementById("MajorDiameter").innerHTML = "螺紋外徑 = " + MajorD;
+				console.log("MajorDiameter = " + MajorD + "\nOutD = " + Thread.InitX + "\nLength = "+Length);
+				var MajorD = Thread.InitX;
+				document.getElementById("MajorDiameter").innerHTML = "螺紋外徑 = " + MajorD;
+
+				var Feed = Pitch;
+				var H = 0.640327 * Pitch;
+
+				document.getElementById("Code").innerHTML = "程式:<br><br>";
+
+				if(Length > 0){
+					for (var i = 0; i < Num; i++) {
+						document.getElementById("Code").innerHTML += "G0 X" + Convert2Gcode(Thread.InitX + Settings.SafetyX) + " Z" + Convert2Gcode(Thread.InitZ + Settings.SafetyX + (i * Pitch)) + "<br>G76 P";
+						if(Finish < 10){
+						document.getElementById("Code").innerHTML += "0" + Finish;
+						}else{
+						document.getElementById("Code").innerHTML += "" + Finish;
+						}
+						if(Pullout < 10){
+						document.getElementById("Code").innerHTML += "0" + Pullout;
+						}else{
+						document.getElementById("Code").innerHTML += "" + Pullout;
+						}
+						if(Math.abs(Angle) < 10){
+							document.getElementById("Code").innerHTML += "0" + Math.abs(Angle);
+						}else{
+							document.getElementById("Code").innerHTML += "" + Math.abs(Angle);
+						}
+						document.getElementById("Code").innerHTML += " Q050 R" + Settings.Leave + "<br>G76 X" + Convert2Gcode(Thread.InitX + (2 * H)) + " Z" + Convert2Gcode(Thread.InitZ - Length);
+						if(Taper != 0){
+						document.getElementById("Code").innerHTML += " R" + Convert2Gcode(Math.tan(Taper * deg2rad) * Length);
+						}
+						document.getElementById("Code").innerHTML += " P" + Math.round(H * 1000) + " Q" + Math.round(H / Math.sqrt(Settings.Times) * 1000) + " F" + Convert2Gcode(Num * Pitch) + "<br>";
+					}
+				} else {
+					document.getElementById("Code").innerHTML += "G0 X" + Convert2Gcode(Thread.InitX + Settings.SafetyX) + " Z" + Convert2Gcode((Thread.InitZ + Length)) + "<br>";
+					var Cut = -(H / (Settings.Times / 2));
+					var CurrentX = Thread.InitX - (Cut * 2);
+					var i = 1;
+
+					for(var j = 0; j < Num; j++){
+						CurrentX = Thread.InitX - (Cut * 2);
+						while(CurrentX > Thread.InitX - (H * 2)) {
+							document.getElementById("Code").innerHTML += "<br>G32 X" + Convert2Gcode(CurrentX) + " F" + Convert2Gcode(Num * Pitch) + "<br>G32";
+							if(Taper != 0){
+							document.getElementById("Code").innerHTML += " X" + Convert2Gcode(CurrentX + (Math.tan(Taper * deg2rad) * Length / 2));
+							}
+							document.getElementById("Code").innerHTML += " Z" + Convert2Gcode(Thread.InitZ);
+							if(j > 0){
+								document.getElementById("Code").innerHTML += " Q" + Math.round((360 / Num) * j * 1000);
+							}
+							document.getElementById("Code").innerHTML += " F" + Convert2Gcode(Num * Pitch);
+							document.getElementById("Code").innerHTML += "<br>G0 X" + Convert2Gcode(Thread.InitX + Settings.SafetyX) + "<br>Z" + Convert2Gcode((Thread.InitZ + Length));
+							if(Cut * Math.sqrt(i) > Settings.Min){
+								CurrentX -= (Cut / Math.sqrt(i) * 2);
+							}else{
+								CurrentX -= Settings.Min * 2;
+							}
+							i++;
+						}
+						CurrentX = Thread.InitX - (H * 2);
+						document.getElementById("Code").innerHTML += "<br>G32 X" + Convert2Gcode(CurrentX) + " F" + Convert2Gcode(Num * Pitch) + "<br>G32";
+						if(Taper != 0){
+						document.getElementById("Code").innerHTML += " X" + Convert2Gcode(CurrentX + (Math.tan(Taper * deg2rad) * Length / 2));
+						}
+						document.getElementById("Code").innerHTML += " Z" + Convert2Gcode(Thread.InitZ);
+						if(j > 0){
+							document.getElementById("Code").innerHTML += " Q" + Math.round((360 / Num) * j * 1000);
+						}
+						document.getElementById("Code").innerHTML += " F" + Convert2Gcode(Num * Pitch);
+						document.getElementById("Code").innerHTML += "<br>G0 X" + Convert2Gcode(Thread.InitX + Settings.SafetyX) + "<br>Z" + Convert2Gcode((Thread.InitZ + Length));
+					}
+				}
+			}
+			document.getElementById("Code").innerHTML = "程式:<br><br><span lang=\"en\" style=\"font-family: courier\">" + document.getElementById("Code").innerHTML + "</span>";
+		}
+		function ToggleIn(){
+			Thread.Internal = true;
+			document.getElementById("OutToggleIn").style.display = "none";
+			document.getElementById("InToggleOut").style.display = "block";
+		}
+		function ToggleOut(){
+			Thread.Internal = false;
+			document.getElementById("OutToggleIn").style.display = "block";
+			document.getElementById("InToggleOut").style.display = "none";
+		}
+		function SetThreadPitch(){
+			var Pitch = parseFloat(prompt("螺距 (mm, e.g. 30):",Thread.Pitch));
+			while(isNaN(Pitch)){
+				Pitch = parseFloat(prompt("螺距須為數字:",Thread.Pitch));
+			}
+			if(Pitch != null){
+				Thread.Pitch = Pitch;
+				document.getElementById("NewThreadPitch").innerHTML = "螺距 = " + Thread.Pitch + "mm";
+			}
+		}
+		function SetThreadNum(){
+			var Num = parseFloat(prompt("螺牙之數量 (整數, e.g. 1):",Thread.Num));
+			while(isNaN(Num)){
+			Num = parseFloat(prompt("數量須為數字:",Thread.Num));
+			}
+			if(Num != null){
+			Thread.Num = Num;
+			document.getElementById("NewThreadNum").innerHTML = "螺牙之數量 = " + Thread.Num + "N";
+			}
+		}
+		function SetThreadAngle(){
+			var Angle = parseFloat(prompt("角度 (角度, e.g. 60):",Thread.Angle));
+			while(isNaN(Angle)){
+			Angle = parseFloat(prompt("角度須為數字:",Thread.Angle));
+			}
+			if(Angle != null){
+			Thread.Angle = Angle;
+			document.getElementById("NewThreadAngle").innerHTML = "角度 = " + Thread.Angle + "°";
+			}
+		}
+		function SetThreadLength(){
+			var Length = parseFloat(prompt("長度 (mm, e.g. 60):",Thread.Length));
+			while(isNaN(Length)){
+			Length = parseFloat(prompt("長度須為數字:",Thread.Length));
+			}
+			if(Length != null){
+			Thread.Length = Length;
+			document.getElementById("NewThreadLength").innerHTML = "長度 = " + Thread.Length + "mm";
+			}
+		}
+		function SetThreadTaper(){
+			var Taper = parseFloat(prompt("錐度 (角度, e.g. 15):",Thread.Taper));
+			while(isNaN(Taper)){
+			Taper = parseFloat(prompt("錐度須為數字:",Thread.Taper));
+			}
+			if(Taper != null){
+			Thread.Taper = Taper;
+			document.getElementById("NewThreadTaper").innerHTML = "錐度 = " + Thread.Taper + "°";
+			}
+		}
+		function SetThreadFinish(){
+			var Finish = parseFloat(prompt("精修 (mm, e.g. 60):",Thread.Finish));
+			while(isNaN(Finish)){
+			Finish = parseFloat(prompt("精修須為數字:",Thread.Finish));
+			}
+			if(Finish != null){
+			Thread.Finish = Finish;
+			document.getElementById("NewThreadFinish").innerHTML = "精修 = " + Thread.Finish + " 次";
+			}
+		}
+		function SetThreadPullout(){
+			var Pullout = parseFloat(prompt("退刀距離 (倍率, e.g. 1.5):",Thread.Pullout));
+			while(isNaN(Pullout)){
+			Pullout = parseFloat(prompt("退刀距離須為數字:",Thread.Pullout));
+			}
+			if(Pullout != null){
+			Thread.Pullout = Pullout;
+			document.getElementById("NewThreadPullout").innerHTML = "退刀距離 = " + Thread.Pullout + " x 螺距";
+			}
+		}
+		function SetSettingsSafetyX(){
+			var safetyX = parseFloat(prompt("安全高度 (mm, e.g. 5).",Settings.SafetyX));
+			while(isNaN(safetyX)){
+			safetyX = parseFloat(prompt("Width須為數字:",Settings.SafetyX));
+			}
+			if(safetyX != null){
+			Settings.SafetyX = safetyX;
+			document.getElementById("NewSettingsSafetyX").innerHTML = "安全高度 = " + Settings.SafetyX + "mm";
+			}
+		}
+		function SetSettingsLeave(){
+			var leave = parseFloat(prompt("精修之預留量 (mm, e.g. 0.05).",Settings.Leave));
+			while(isNaN(leave)){
+			leave = parseFloat(prompt("預留量須為數字:",Settings.Leave));
+			}
+			if(leave != null){
+			Settings.Leave = leave;
+			document.getElementById("NewSettingsLeave").innerHTML = "預留量 = " + Settings.Leave + "mm";
+			}
+		}
+		function SetSettingsTimes(){
+			var Times = parseFloat(prompt("切削次數 (整數, e.g. 10).",Settings.Times));
+			while(isNaN(Times)){
+			Times = parseFloat(prompt("切削次數須為數字:",Settings.Times));
+			}
+			if(Times != null){
+			Settings.Times = Times;
+			document.getElementById("NewSettingsTimes").innerHTML = "切削次數 = " + Settings.Times + " 次";
+			}
+		}
+		function SetSettingsSpeed(){
+			var Speed = parseFloat(prompt("切削速度 (m/min e.g. 130).",Settings.Speed));
+			while(isNaN(Speed)){
+			Speed = parseFloat(prompt("Speed須為數字:",Settings.Speed));
+			}
+			if(Speed != null){
+			Settings.Speed = Speed;
+			document.getElementById("NewSettingsSpeed").innerHTML = "切削速度 = " + Settings.Speed + "m/min";
+			}
+		}
+		function SetInitPos(){
+			var initX = parseFloat(prompt("螺紋外徑:",Thread.InitX));
+			while(isNaN(initX) || initX <= 0){
+			initX = parseFloat(prompt("外徑須為數字:",Thread.InitX));
+			}
+			var initZ = parseFloat(prompt("螺紋Z座標:",Thread.InitZ));
+			while(isNaN(initZ)){
+			initZ = parseFloat(prompt("座標須為數字:",Thread.InitZ));
+			}
+			if(initX != null){
+			Thread.InitX = initX;
+			}
+			if(initZ != null){
+			Thread.InitZ = initZ;
+			}
+			document.getElementById("NewInitPos").innerHTML = "螺紋座標 = M" + Thread.InitX + " Z" + Thread.InitZ;
+		}
+		function Convert2Gcode(rawNum){
+			if(rawNum % 1 == 0){
+				return (rawNum + ".");
+			}else{
+				return (Math.floor(rawNum * 1000) / 1000).toString();
+			}
+		}
+	</script>
+	</body>
+</html>
